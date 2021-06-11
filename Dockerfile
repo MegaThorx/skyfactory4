@@ -1,6 +1,6 @@
 # This is based on jaysonsantos/docker-minecraft-ftb-skyfactory3
 
-FROM java:8
+FROM openjdk:8
 
 MAINTAINER MegaThorx <git@merx.dev>
 
