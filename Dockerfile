@@ -1,33 +1,30 @@
-# This is based on jaysonsantos/docker-minecraft-ftb-skyfactory3
-
-FROM openjdk:8-jre-buster
+FROM openjdk:alpine
 
 MAINTAINER MegaThorx <git@merx.dev>
 
 ENV VERSION=4.2.2
 
-RUN apt-get update && apt-get install -y wget unzip
-RUN addgroup --gid 1234 minecraft
-RUN adduser --disabled-password --home=/data --uid 1234 --gid 1234 --gecos "minecraft user" minecraft
-
-RUN mkdir /tmp/feed-the-beast && cd /tmp/feed-the-beast && \
+RUN apk update && apk add curl wget && \
+    adduser -D -h /minecraft -u 1000 minecraft && \
+	mkdir /minecraft/template && mkdir /minecraft/server && cd /minecraft/template && \
 	wget -c https://media.forgecdn.net/files/3012/800/SkyFactory-4_Server_${VERSION}.zip -O SkyFactory4.zip && \
 	unzip SkyFactory4.zip && \
 	rm SkyFactory4.zip && \
-	bash -x Install.sh && \
-	chown -R minecraft /tmp/feed-the-beast
+	sh Install.sh && \
+	chown -R minecraft /minecraft
+
+ADD start.sh /minecraft/start.sh
+RUN chown minecraft /minecraft/start.sh
 
 USER minecraft
-
 EXPOSE 25565
 
-VOLUME /data
-ADD server.properties /tmp/server.properties
-WORKDIR /data
+VOLUME /minecraft
+ADD server.properties /minecraft/server.properties
+WORKDIR /minecraft
 
-CMD cp -rf /tmp/feed-the-beast/* . && \
-	/bin/sh ./ServerStart.sh
+CMD /bin/sh start.sh
 
 ENV MOTD A Minecraft (FTB SkyFactory 4 ${VERSION}) Server Powered by Docker
 ENV LEVEL world
-ENV JVM_OPTS -Xms2048m -Xmx2048m
+ENV JVM_OPTS -Xms4096m -Xmx8192m -XX:+UseG1GC -Dsun.rmi.dgc.server.gcInterval=2147483646 -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M -Dfml.readTimeout=180
