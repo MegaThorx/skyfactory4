@@ -1,6 +1,6 @@
 # This is based on jaysonsantos/docker-minecraft-ftb-skyfactory3
 
-FROM openjdk:8
+FROM openjdk:8-jre-buster
 
 MAINTAINER MegaThorx <git@merx.dev>
 
@@ -17,18 +17,16 @@ RUN mkdir /tmp/feed-the-beast && cd /tmp/feed-the-beast && \
 	bash -x Install.sh && \
 	chown -R minecraft /tmp/feed-the-beast
 
-
 USER minecraft
 
 EXPOSE 25565
-
-ADD start.sh /start
 
 VOLUME /data
 ADD server.properties /tmp/server.properties
 WORKDIR /data
 
-CMD /start
+CMD cp -rf /tmp/feed-the-beast/* . && \
+	/bin/sh ./ServerStart.sh
 
 ENV MOTD A Minecraft (FTB SkyFactory 4 ${VERSION}) Server Powered by Docker
 ENV LEVEL world
