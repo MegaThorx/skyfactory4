@@ -22,4 +22,6 @@ fi
 
 . ./settings.sh
 
+cat eula.txt
+
 java -server $JVM_OPTS -jar ${SERVER_JAR} nogui
